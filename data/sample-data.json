@@ -1,0 +1,77 @@
+{
+  "usuarios": [
+    {
+      "id": "admin1",
+      "nombre": "Carlos Rodríguez",
+      "email": "admin@edusmart.com",
+      "rol": "admin",
+      "password": "admin123"
+    },
+    {
+      "id": "prof1",
+      "nombre": "María González",
+      "email": "prof@edusmart.com",
+      "rol": "profesor",
+      "password": "prof123",
+      "materias": ["Matemáticas", "Física"]
+    },
+    {
+      "id": "alumno1",
+      "nombre": "Juan Pérez",
+      "email": "alumno@edusmart.com",
+      "rol": "alumno",
+      "password": "alumno123",
+      "grado": "10°",
+      "materias": ["Matemáticas", "Español", "Ciencias"]
+    }
+  ],
+  
+  "cursos": [
+    {
+      "id": "curso1",
+      "nombre": "Matemáticas 10°",
+      "profesor": "prof1",
+      "estudiantes": ["alumno1"],
+      "horario": "Lunes y Miércoles 10:00 AM"
+    },
+    {
+      "id": "curso2",
+      "nombre": "Física 10°",
+      "profesor": "prof1",
+      "estudiantes": ["alumno1"],
+      "horario": "Martes y Jueves 2:00 PM"
+    }
+  ],
+  
+  "recursos": [
+    {
+      "id": "recurso1",
+      "titulo": "Guía de Matemáticas - Capítulo 1",
+      "tipo": "PDF",
+      "url": "https://ejemplo.com/guia1.pdf",
+      "curso": "curso1",
+      "fecha_subida": "2024-01-15"
+    },
+    {
+      "id": "recurso2",
+      "titulo": "Video Explicativo: Ecuaciones",
+      "tipo": "Video",
+      "url": "https://youtube.com/ejemplo",
+      "curso": "curso1",
+      "fecha_subida": "2024-01-20"
+    }
+  ],
+  
+  "progreso": [
+    {
+      "id": "progreso1",
+      "estudiante": "alumno1",
+      "curso": "curso1",
+      "calificaciones": [
+        {"evaluacion": "Parcial 1", "nota": 4.5},
+        {"evaluacion": "Taller 1", "nota": 4.0}
+      ],
+      "asistencia": 95
+    }
+  ]
+}

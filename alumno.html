@@ -1,0 +1,2462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudiante Dashboard - EduSmart School</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+    
+    <style>
+        /* Variables globales */
+        :root {
+            --primary: #4285F4;
+            --primary-light: #E8F0FE;
+            --secondary: #34A853;
+            --accent: #FBBC05;
+            --error: #EA4335;
+            --text-primary: #202124;
+            --text-secondary: #5F6368;
+            --background: #FFFFFF;
+            --surface: #F8F9FA;
+            --border: #DADCE0;
+            --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            --shadow-md: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            background: var(--surface);
+            line-height: 1.5;
+        }
+
+        /* Navbar superior */
+        .top-navbar {
+            background: var(--background);
+            box-shadow: var(--shadow-sm);
+            padding: 0.75rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            color: var(--primary);
+            margin-right: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Botón menú móvil */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .navbar-actions {
+                gap: 0.75rem;
+            }
+        }
+
+        /* Notificaciones */
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notifications i {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .notifications:hover i {
+            color: var(--primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 320px;
+            background: var(--background);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            display: none;
+            margin-top: 1rem;
+            z-index: 1001;
+        }
+
+        .notifications-dropdown.show {
+            display: block;
+        }
+
+        .notifications-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notifications-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background: var(--surface);
+        }
+
+        .notification-item.unread {
+            background: var(--primary-light);
+        }
+
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Menú de usuario */
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .user-menu:hover {
+            background: var(--surface);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .user-info {
+                display: block;
+                line-height: 1.2;
+            }
+            
+            .user-name {
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
+            
+            .user-role {
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+            }
+        }
+
+        .dropdown-menu-custom {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background: var(--background);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            display: none;
+            margin-top: 0.5rem;
+            z-index: 1001;
+        }
+
+        .dropdown-menu-custom.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--surface);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-item.text-danger {
+            color: var(--error);
+        }
+
+        .dropdown-item.text-danger i {
+            color: var(--error);
+        }
+
+        /* Sidebar - CORREGIDO PARA MÓVIL */
+        .sidebar {
+            background: var(--background);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar .nav {
+            padding: 0 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link i {
+            width: 24px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .sidebar .nav-link:hover {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        .sidebar .nav-link:hover i {
+            color: var(--primary);
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link.active i {
+            color: var(--primary);
+        }
+
+        .sidebar .nav-link.text-danger {
+            color: var(--error);
+        }
+
+        .sidebar .nav-link.text-danger i {
+            color: var(--error);
+        }
+
+        .sidebar .nav-link.text-danger:hover {
+            background: #FCE8E6;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: var(--shadow-md);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+        }
+
+        /* Overlay para móvil */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 260px;
+            margin-top: 64px;
+            padding: 2rem;
+            min-height: calc(100vh - 64px);
+            background: var(--surface);
+            transition: margin-left 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+        }
+
+        /* Cards de estadísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Tarjetas de materias */
+        .materia-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .materia-card:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .materia-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .materia-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .materia-info {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .materia-info i {
+            color: var(--primary);
+            width: 20px;
+        }
+
+        .materia-nota {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .materia-nota.baja {
+            color: var(--error);
+        }
+
+        /* Progress bar */
+        .progress {
+            height: 8px;
+            background: var(--surface);
+            border-radius: 100px;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .progress-bar {
+            background: var(--primary);
+            border-radius: 100px;
+            height: 100%;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .progress-value {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            min-width: 40px;
+        }
+
+        /* Tareas pendientes */
+        .tarea-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .tarea-item:hover {
+            background: var(--surface);
+        }
+
+        .tarea-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .tarea-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .tarea-fecha {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .badge-estado {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-estado.pendiente {
+            background: #FFF3E0;
+            color: var(--accent);
+        }
+
+        .badge-estado.entregado {
+            background: #E6F4EA;
+            color: var(--secondary);
+        }
+
+        .badge-estado.calificado {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Recursos */
+        .recurso-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .recurso-item:hover {
+            background: var(--surface);
+        }
+
+        .recurso-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            margin-right: 1rem;
+        }
+
+        .recurso-info {
+            flex: 1;
+        }
+
+        .recurso-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .recurso-info p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .recurso-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Mensajes */
+        .message-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .message-item:hover {
+            background: var(--surface);
+        }
+
+        .message-item.unread {
+            background: var(--primary-light);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-sender {
+            font-weight: 600;
+        }
+
+        .message-course {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .message-content {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message-action {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .message-action:hover {
+            color: var(--primary);
+        }
+
+        /* Calendario - NUEVO */
+        .calendar-container {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        #calendar {
+            min-height: 600px;
+        }
+
+        .evento-detalle {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            border-left: 4px solid var(--primary);
+        }
+
+        .evento-detalle.examen {
+            border-left-color: var(--error);
+        }
+
+        .evento-detalle.tarea {
+            border-left-color: var(--accent);
+        }
+
+        .evento-detalle.clase {
+            border-left-color: var(--secondary);
+        }
+
+        .evento-titulo {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .evento-hora {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Botones */
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-icon:hover {
+            background: var(--surface);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-primary-custom {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 500;
+            border: none;
+            transition: var(--transition);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-custom:hover {
+            background: #3367D6;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary-custom {
+            background: var(--surface);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-secondary-custom:hover {
+            background: var(--border);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--background);
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            padding: 2rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            margin-bottom: 2rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Tablas */
+        .table-container {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid var(--primary-light);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: var(--transition);
+        }
+
+        .table tbody tr:hover {
+            background: var(--surface);
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 3000;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast i {
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay para móvil -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduSmart School</span>
+            <span style="margin-left: 1rem; font-size: 0.75rem; color: var(--text-secondary);">Estudiante</span>
+        </a>
+
+        <div class="navbar-actions">
+            <!-- Notificaciones -->
+            <div class="notifications" id="notificationsToggle">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationCount">3</span>
+                <div class="notifications-dropdown" id="notificationsDropdown">
+                    <div class="notifications-header">
+                        <span>Notificaciones</span>
+                        <small style="color: var(--primary); cursor: pointer;" onclick="marcarTodasLeidas()">Marcar todas como leídas</small>
+                    </div>
+                    <div class="notifications-list" id="notificationsList"></div>
+                </div>
+            </div>
+
+            <!-- Menú de usuario -->
+            <div class="user-menu" id="userMenuToggle">
+                <div class="user-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Juan Pérez</div>
+                    <div class="user-role" id="userEmail">juan.perez@edusmart.com</div>
+                </div>
+                <i class="fas fa-chevron-down" style="font-size: 0.75rem; color: var(--text-secondary);"></i>
+                
+                <div class="dropdown-menu-custom" id="userDropdown">
+                    <div class="dropdown-item" onclick="showSection('perfil')">
+                        <i class="fas fa-user"></i>
+                        Mi Perfil
+                    </div>
+                    <div class="dropdown-item" onclick="showSection('configuracion')">
+                        <i class="fas fa-cog"></i>
+                        Configuración
+                    </div>
+                    <div class="dropdown-divider" style="height: 1px; background: var(--border); margin: 0.5rem 0;"></div>
+                    <div class="dropdown-item text-danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Cerrar Sesión
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="#" onclick="showSection('dashboard', event)">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('materias', event)">
+                <i class="fas fa-book"></i>
+                <span>Mis Materias</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('tareas', event)">
+                <i class="fas fa-tasks"></i>
+                <span>Tareas</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('recursos', event)">
+                <i class="fas fa-cloud-download-alt"></i>
+                <span>Recursos</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('calificaciones', event)">
+                <i class="fas fa-star"></i>
+                <span>Calificaciones</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('mensajes', event)">
+                <i class="fas fa-envelope"></i>
+                <span>Mensajes</span>
+                <span style="margin-left: auto; background: var(--error); color: white; padding: 0.15rem 0.4rem; border-radius: 10px; font-size: 0.7rem;" id="mensajesNoLeidos">2</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('calendario', event)">
+                <i class="fas fa-calendar"></i>
+                <span>Calendario</span>
+            </a>
+            <hr class="my-3" style="border-color: var(--border);">
+            <a class="nav-link text-danger" href="#" onclick="logout(event)">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-home me-2" style="color: var(--primary);"></i>
+                Dashboard
+            </h2>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Materias inscritas</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">4.3</div>
+                    <div class="stat-label">Promedio general</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Tareas pendientes</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">Próximos exámenes</div>
+                </div>
+            </div>
+
+            <!-- Tareas pendientes -->
+            <div class="table-container">
+                <h5 class="mb-3">
+                    <i class="fas fa-clock me-2" style="color: var(--primary);"></i>
+                    📌 Tareas pendientes
+                </h5>
+                <div id="tareasPendientes">
+                    <!-- Se llenará con JS -->
+                </div>
+            </div>
+
+            <!-- Próximas clases y calendario -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="table-container">
+                        <h5 class="mb-3">
+                            <i class="fas fa-calendar me-2" style="color: var(--primary);"></i>
+                            Próximas clases
+                        </h5>
+                        <div id="proximasClases">
+                            <!-- Se llenará con JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="table-container">
+                        <h5 class="mb-3">
+                            <i class="fas fa-bullhorn me-2" style="color: var(--primary);"></i>
+                            Anuncios recientes
+                        </h5>
+                        <div id="anunciosRecientes">
+                            <!-- Se llenará con JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mis Materias Section -->
+        <div id="materias" class="content-section" style="display: none;">
+            <div id="materias-lista">
+                <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                    <i class="fas fa-book me-2" style="color: var(--primary);"></i>
+                    Mis Materias
+                </h2>
+                
+                <div class="stats-grid" id="listaMaterias">
+                    <!-- Se llenará con JS -->
+                </div>
+            </div>
+
+            <div id="materia-detalle" style="display: none;">
+                <!-- Se llenará dinámicamente -->
+            </div>
+        </div>
+        
+        <!-- Tareas Section -->
+        <div id="tareas" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-tasks me-2" style="color: var(--primary);"></i>
+                Tareas
+            </h2>
+            
+            <!-- Subir tarea -->
+            <div class="row mb-4">
+                <div class="col-md-5">
+                    <div class="table-container">
+                        <h5 class="mb-4">
+                            <i class="fas fa-upload me-2" style="color: var(--primary);"></i>
+                            Entregar tarea
+                        </h5>
+                        <form id="formTarea">
+                            <div class="form-group">
+                                <label>Tarea</label>
+                                <select id="tareaSelect" required>
+                                    <option value="">Seleccionar tarea</option>
+                                    <option value="Ejercicios Matemáticas">Ejercicios Matemáticas</option>
+                                    <option value="Taller Física">Taller Física</option>
+                                    <option value="Ensayo Español">Ensayo Español</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Materia</label>
+                                <select id="tareaMateria" required>
+                                    <option value="">Seleccionar materia</option>
+                                    <option value="Matemáticas 10°">Matemáticas 10°</option>
+                                    <option value="Física 11°">Física 11°</option>
+                                    <option value="Español 10°">Español 10°</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Archivo (PDF, DOC, JPG)</label>
+                                <input type="file" id="tareaArchivo" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary-custom">
+                                <i class="fas fa-upload"></i>
+                                Subir tarea
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="col-md-7">
+                    <div class="table-container">
+                        <h5 class="mb-3">
+                            <i class="fas fa-history me-2" style="color: var(--primary);"></i>
+                            📚 Tareas entregadas
+                        </h5>
+                        <div id="tareasEntregadas">
+                            <!-- Se llenará con JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recursos Section -->
+        <div id="recursos" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-cloud-download-alt me-2" style="color: var(--primary);"></i>
+                Recursos Educativos
+            </h2>
+            
+            <div class="table-toolbar" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <div class="search-box" style="flex: 1; min-width: 250px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchRecursos" placeholder="Buscar recurso...">
+                </div>
+                <select class="form-select" style="width: 200px; border-radius: 100px;" id="filtroMateriaRecursos">
+                    <option value="">Todas las materias</option>
+                    <option value="Matemáticas">Matemáticas</option>
+                    <option value="Física">Física</option>
+                    <option value="Español">Español</option>
+                    <option value="Historia">Historia</option>
+                    <option value="Inglés">Inglés</option>
+                </select>
+            </div>
+            
+            <div class="table-container">
+                <div id="listaRecursos">
+                    <!-- Se llenará con JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Calificaciones Section -->
+        <div id="calificaciones" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-star me-2" style="color: var(--primary);"></i>
+                Calificaciones
+            </h2>
+            
+            <div class="table-toolbar" style="margin-bottom: 1.5rem;">
+                <select class="form-select" style="width: 250px; border-radius: 100px;" id="filtroPeriodo">
+                    <option value="">Todos los períodos</option>
+                    <option value="1">Período 1</option>
+                    <option value="2">Período 2</option>
+                    <option value="3">Período 3</option>
+                </select>
+            </div>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Materia</th>
+                            <th>Evaluación</th>
+                            <th>Nota</th>
+                            <th>Fecha</th>
+                            <th>Comentario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCalificaciones">
+                        <!-- Se llenará con JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Mensajes Section -->
+        <div id="mensajes" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-envelope me-2" style="color: var(--primary);"></i>
+                Mensajes
+            </h2>
+            
+            <div class="table-toolbar" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <div class="search-box" style="flex: 1; min-width: 250px;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchMensajes" placeholder="Buscar mensajes...">
+                </div>
+                <button class="btn-primary-custom" onclick="mostrarModalNuevoMensaje()">
+                    <i class="fas fa-plus"></i>
+                    Nuevo mensaje
+                </button>
+            </div>
+            
+            <div class="table-container">
+                <div id="listaMensajes">
+                    <!-- Se llenará con JS -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Calendario Section - NUEVO CON FULLCALENDAR -->
+        <div id="calendario" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-calendar me-2" style="color: var(--primary);"></i>
+                Calendario Académico
+            </h2>
+            
+            <div class="calendar-container">
+                <div id="calendar"></div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">Clases este mes</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Exámenes</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Entregas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Perfil Section -->
+        <div id="perfil" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-user me-2" style="color: var(--primary);"></i>
+                Mi Perfil
+            </h2>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="table-container text-center">
+                        <div class="user-avatar" style="width: 100px; height: 100px; margin: 0 auto 1rem; font-size: 2.5rem;">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h4 id="profileName">Juan Pérez</h4>
+                        <p id="profileEmail" style="color: var(--text-secondary);">juan.perez@edusmart.com</p>
+                        <p><span class="badge-role" style="background: var(--primary-light); color: var(--primary);">10° Grado</span></p>
+                        <button class="btn-secondary-custom" style="margin-top: 1rem;">
+                            <i class="fas fa-camera me-2"></i>Cambiar foto
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="table-container">
+                        <h5 class="mb-4">Información Personal</h5>
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" value="Juan" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Apellidos</label>
+                                    <input type="text" class="form-control" value="Pérez" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="juan.perez@edusmart.com" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn-primary-custom">Actualizar Perfil</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Configuración Section -->
+        <div id="configuracion" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-cog me-2" style="color: var(--primary);"></i>
+                Configuración
+            </h2>
+            
+            <div class="table-container">
+                <h5 class="mb-4">Preferencias de notificaciones</h5>
+                <div class="mb-3">
+                    <label class="form-label">Recibir notificaciones por email</label>
+                    <select class="form-select" style="border-radius: 8px;">
+                        <option>Sí, todas las notificaciones</option>
+                        <option>Solo mensajes importantes</option>
+                        <option>No recibir notificaciones</option>
+                    </select>
+                </div>
+                <button class="btn-primary-custom">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalles de materia -->
+    <div class="modal" id="modalMateria">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 id="modalMateriaTitulo">Matemáticas 10°</h3>
+            </div>
+            <div class="modal-body" id="modalMateriaContenido">
+                <!-- Se llenará dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary-custom" onclick="cerrarModalMateria()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para nuevo mensaje -->
+    <div class="modal" id="modalNuevoMensaje">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuevo mensaje</h3>
+            </div>
+            <div class="modal-body">
+                <form id="formMensaje">
+                    <div class="form-group">
+                        <label>Para (profesor)</label>
+                        <select id="mensajeProfesor" required>
+                            <option value="">Seleccionar profesor</option>
+                            <option value="María González - Matemáticas">María González - Matemáticas</option>
+                            <option value="Carlos Rodríguez - Física">Carlos Rodríguez - Física</option>
+                            <option value="Ana Martínez - Español">Ana Martínez - Español</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Materia</label>
+                        <select id="mensajeMateria" required>
+                            <option value="">Seleccionar materia</option>
+                            <option value="Matemáticas 10°">Matemáticas 10°</option>
+                            <option value="Física 11°">Física 11°</option>
+                            <option value="Español 10°">Español 10°</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mensaje</label>
+                        <textarea id="mensajeTexto" rows="4" placeholder="Escribe tu mensaje..." required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary-custom" onclick="cerrarModalNuevoMensaje()">Cancelar</button>
+                <button class="btn-primary-custom" onclick="enviarMensaje()">Enviar mensaje</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para responder mensaje -->
+    <div class="modal" id="modalResponder">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Responder mensaje</h3>
+            </div>
+            <div class="modal-body">
+                <form id="formRespuesta">
+                    <div class="form-group">
+                        <label>Para:</label>
+                        <input type="text" id="respuestaPara" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Mensaje original:</label>
+                        <textarea id="mensajeOriginal" class="form-control" rows="3" readonly style="background: var(--surface);"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tu respuesta:</label>
+                        <textarea id="respuestaTexto" rows="4" placeholder="Escribe tu respuesta..." required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary-custom" onclick="cerrarModalResponder()">Cancelar</button>
+                <button class="btn-primary-custom" onclick="enviarRespuesta()">Enviar respuesta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver evento -->
+    <div class="modal" id="modalEvento">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="eventoTitulo">Evento</h3>
+            </div>
+            <div class="modal-body" id="eventoDetalle">
+                <!-- Se llenará dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary-custom" onclick="cerrarModalEvento()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de confirmación -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operación realizada correctamente</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmDOu0EWq4gZ-OR71nK4HtOj5yEX-dENw",
+            authDomain: "edusmart-school.firebaseapp.com",
+            projectId: "edusmart-school",
+            storageBucket: "edusmart-school.firebasestorage.app",
+            messagingSenderId: "507977635936",
+            appId: "1:507977635936:web:b3033cc72b2cea865b0b05"
+        };
+
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const auth = firebase.auth();
+
+        // Variables globales
+        let isRedirecting = false;
+        let mensajesData = [];
+        let tareasEntregadasData = [];
+        let calendar = null;
+
+        // Verificar autenticación
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('✅ Usuario autenticado en alumno:', user.email);
+                
+                if (!user.email.includes('alumno')) {
+                    console.log('❌ No es alumno, redirigiendo...');
+                    if (!isRedirecting) {
+                        isRedirecting = true;
+                        window.location.replace('login.html');
+                    }
+                    return;
+                }
+                
+                // Guardar en sessionStorage
+                const userData = {
+                    uid: user.uid,
+                    email: user.email,
+                    rol: 'alumno',
+                    nombre: 'Juan Pérez'
+                };
+                sessionStorage.setItem('user', JSON.stringify(userData));
+                
+                // Mostrar información del usuario
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('userName').textContent = 'Juan Pérez';
+                
+                // Cargar datos
+                cargarDatosIniciales();
+                
+            } else {
+                console.log('❌ No hay usuario autenticado en alumno');
+                if (!isRedirecting) {
+                    isRedirecting = true;
+                    window.location.replace('login.html');
+                }
+            }
+        });
+
+        // Función para toggle sidebar en móvil
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        };
+
+        // Toggle dropdowns
+        document.getElementById('userMenuToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('userDropdown').classList.toggle('show');
+            document.getElementById('notificationsDropdown').classList.remove('show');
+        });
+
+        document.getElementById('notificationsToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('notificationsDropdown').classList.toggle('show');
+            document.getElementById('userDropdown').classList.remove('show');
+        });
+
+        document.addEventListener('click', function() {
+            document.getElementById('userDropdown').classList.remove('show');
+            document.getElementById('notificationsDropdown').classList.remove('show');
+        });
+
+        // Funciones de búsqueda
+        document.getElementById('searchRecursos')?.addEventListener('input', function(e) {
+            filterRecursos(e.target.value);
+        });
+
+        document.getElementById('filtroMateriaRecursos')?.addEventListener('change', function(e) {
+            filterRecursosByMateria(e.target.value);
+        });
+
+        document.getElementById('searchMensajes')?.addEventListener('input', function(e) {
+            filterMensajes(e.target.value);
+        });
+
+        // Notificaciones
+        function marcarTodasLeidas() {
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.classList.remove('unread');
+            });
+            document.getElementById('notificationCount').textContent = '0';
+            mostrarToast('✅ Todas las notificaciones marcadas como leídas');
+        }
+
+        function marcarNotificacionLeida(element) {
+            element.classList.remove('unread');
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            document.getElementById('notificationCount').textContent = unreadCount;
+        }
+
+        // Cargar notificaciones
+        function cargarNotificaciones() {
+            const notificaciones = [
+                { title: 'Nueva tarea: Ejercicios Matemáticas', time: 'Hace 2 horas', unread: true },
+                { title: 'Tu tarea de Física fue calificada', time: 'Hace 1 día', unread: true },
+                { title: 'Recordatorio: Examen el viernes', time: 'Hace 2 días', unread: false }
+            ];
+            
+            let html = '';
+            notificaciones.forEach(notif => {
+                html += `
+                    <div class="notification-item ${notif.unread ? 'unread' : ''}" onclick="marcarNotificacionLeida(this)">
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-time">${notif.time}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('notificationsList').innerHTML = html;
+        }
+
+        // Cargar datos iniciales
+        function cargarDatosIniciales() {
+            cargarNotificaciones();
+            
+            // Tareas pendientes
+            document.getElementById('tareasPendientes').innerHTML = `
+                <div class="tarea-item">
+                    <div class="tarea-info">
+                        <h4>Ejercicios de Matemáticas</h4>
+                        <p>Matemáticas 10° • Prof. González</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="tarea-fecha">Fecha límite: 20/03/2024</div>
+                        <span class="badge-estado pendiente">Pendiente</span>
+                    </div>
+                </div>
+                <div class="tarea-item">
+                    <div class="tarea-info">
+                        <h4>Taller de Física</h4>
+                        <p>Física 11° • Prof. Rodríguez</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="tarea-fecha">Fecha límite: 22/03/2024</div>
+                        <span class="badge-estado pendiente">Pendiente</span>
+                    </div>
+                </div>
+                <div class="tarea-item">
+                    <div class="tarea-info">
+                        <h4>Ensayo de Español</h4>
+                        <p>Español 10° • Prof. Martínez</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="tarea-fecha">Fecha límite: 25/03/2024</div>
+                        <span class="badge-estado pendiente">Pendiente</span>
+                    </div>
+                </div>
+            `;
+
+            // Próximas clases
+            document.getElementById('proximasClases').innerHTML = `
+                <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Matemáticas 10°</strong><br>
+                            <small style="color: var(--text-secondary);">Hoy 10:00 AM - Salón 101</small>
+                        </div>
+                        <span class="badge-role" style="background: var(--primary-light); color: var(--primary);">Hoy</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Física 11°</strong><br>
+                            <small style="color: var(--text-secondary);">Mañana 8:00 AM - Salón 102</small>
+                        </div>
+                        <span class="badge-role" style="background: var(--primary-light); color: var(--primary);">Mañana</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Español 10°</strong><br>
+                            <small style="color: var(--text-secondary);">Miércoles 14:00 PM</small>
+                        </div>
+                        <span class="badge-role" style="background: #E6F4EA; color: var(--secondary);">Próximo</span>
+                    </div>
+                </div>
+            `;
+
+            // Anuncios recientes
+            document.getElementById('anunciosRecientes').innerHTML = `
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <strong>📢 Recordatorio examen</strong><br>
+                        <small style="color: var(--text-secondary);">El examen de Matemáticas será el viernes</small>
+                    </div>
+                    <div class="list-group-item">
+                        <strong>📢 Cambio de horario</strong><br>
+                        <small style="color: var(--text-secondary);">La clase de Física se cambia a las 9:00</small>
+                    </div>
+                </div>
+            `;
+
+            // Cargar materias
+            cargarMaterias();
+            
+            // Cargar recursos
+            cargarRecursos();
+            
+            // Cargar calificaciones
+            cargarCalificaciones();
+            
+            // Cargar mensajes
+            cargarMensajes();
+            
+            // Cargar tareas entregadas
+            cargarTareasEntregadas();
+            
+            // Inicializar calendario
+            initCalendar();
+        }
+
+        // Inicializar FullCalendar
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día'
+                },
+                events: [
+                    {
+                        title: '📝 Parcial Matemáticas',
+                        start: '2024-03-20',
+                        allDay: true,
+                        className: 'evento-detalle examen',
+                        extendedProps: {
+                            tipo: 'examen',
+                            materia: 'Matemáticas',
+                            hora: '10:00',
+                            aula: '101'
+                        }
+                    },
+                    {
+                        title: '🔬 Taller Física',
+                        start: '2024-03-22',
+                        allDay: true,
+                        className: 'evento-detalle tarea',
+                        extendedProps: {
+                            tipo: 'tarea',
+                            materia: 'Física',
+                            hora: '14:00',
+                            aula: '102'
+                        }
+                    },
+                    {
+                        title: '📚 Clase Español',
+                        start: '2024-03-23',
+                        allDay: true,
+                        className: 'evento-detalle clase',
+                        extendedProps: {
+                            tipo: 'clase',
+                            materia: 'Español',
+                            hora: '8:00',
+                            aula: '103'
+                        }
+                    },
+                    {
+                        title: '📖 Examen Historia',
+                        start: '2024-03-25',
+                        allDay: true,
+                        className: 'evento-detalle examen',
+                        extendedProps: {
+                            tipo: 'examen',
+                            materia: 'Historia',
+                            hora: '10:00',
+                            aula: '104'
+                        }
+                    },
+                    {
+                        title: '📝 Entrega Tarea Inglés',
+                        start: '2024-03-26',
+                        allDay: true,
+                        className: 'evento-detalle tarea',
+                        extendedProps: {
+                            tipo: 'tarea',
+                            materia: 'Inglés',
+                            hora: '23:59',
+                            aula: 'online'
+                        }
+                    },
+                    {
+                        title: '🧪 Laboratorio Física',
+                        start: '2024-04-05',
+                        allDay: true,
+                        className: 'evento-detalle clase',
+                        extendedProps: {
+                            tipo: 'clase',
+                            materia: 'Física',
+                            hora: '14:00',
+                            aula: 'Lab 101'
+                        }
+                    },
+                    {
+                        title: '📊 Examen Final Matemáticas',
+                        start: '2024-04-10',
+                        allDay: true,
+                        className: 'evento-detalle examen',
+                        extendedProps: {
+                            tipo: 'examen',
+                            materia: 'Matemáticas',
+                            hora: '9:00',
+                            aula: 'Auditorio'
+                        }
+                    }
+                ],
+                eventClick: function(info) {
+                    mostrarDetalleEvento(info.event);
+                },
+                height: 'auto',
+                contentHeight: 600
+            });
+
+            calendar.render();
+        }
+
+        function mostrarDetalleEvento(event) {
+            const props = event.extendedProps;
+            document.getElementById('eventoTitulo').textContent = event.title;
+            
+            let detalle = `
+                <div class="form-group">
+                    <p><strong>Tipo:</strong> ${props.tipo}</p>
+                    <p><strong>Materia:</strong> ${props.materia}</p>
+                    <p><strong>Hora:</strong> ${props.hora}</p>
+                    <p><strong>Aula:</strong> ${props.aula}</p>
+                    <p><strong>Fecha:</strong> ${event.start.toLocaleDateString('es-ES')}</p>
+                </div>
+            `;
+            
+            document.getElementById('eventoDetalle').innerHTML = detalle;
+            document.getElementById('modalEvento').classList.add('show');
+        }
+
+        function cerrarModalEvento() {
+            document.getElementById('modalEvento').classList.remove('show');
+        }
+
+        // Cargar materias
+        function cargarMaterias() {
+            const materias = [
+                { nombre: 'Matemáticas 10°', profesor: 'María González', horario: 'Lun/Mie 10:00', progreso: 75, nota: 4.5, aula: '101' },
+                { nombre: 'Física 11°', profesor: 'Carlos Rodríguez', horario: 'Mar/Jue 14:00', progreso: 60, nota: 4.0, aula: '102' },
+                { nombre: 'Español 10°', profesor: 'Ana Martínez', horario: 'Lun/Mie 8:00', progreso: 85, nota: 4.8, aula: '103' },
+                { nombre: 'Inglés 11°', profesor: 'John Smith', horario: 'Vie 10:00', progreso: 90, nota: 5.0, aula: '104' },
+                { nombre: 'Historia 10°', profesor: 'Patricia López', horario: 'Mar/Jue 10:00', progreso: 70, nota: 4.2, aula: '105' }
+            ];
+            
+            let html = '';
+            materias.forEach(materia => {
+                const notaClass = materia.nota >= 4 ? '' : 'baja';
+                html += `
+                    <div class="materia-card" onclick="verDetalleMateria('${materia.nombre}')">
+                        <div class="materia-header">
+                            <h3 class="materia-title">${materia.nombre}</h3>
+                            <span class="materia-nota ${notaClass}">${materia.nota}</span>
+                        </div>
+                        <div class="materia-info">
+                            <i class="fas fa-user me-2"></i>${materia.profesor}
+                        </div>
+                        <div class="materia-info">
+                            <i class="fas fa-clock me-2"></i>${materia.horario}
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress">
+                                <div class="progress-bar" style="width: ${materia.progreso}%"></div>
+                            </div>
+                            <span class="progress-value">${materia.progreso}%</span>
+                        </div>
+                        <button class="btn-primary-custom" style="margin-top: 1rem; width: 100%;" onclick="event.stopPropagation(); verDetalleMateria('${materia.nombre}')">
+                            <i class="fas fa-folder-open me-2"></i>Ver materia
+                        </button>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('listaMaterias').innerHTML = html;
+        }
+
+        // Ver detalle de materia
+        function verDetalleMateria(materiaNombre) {
+            const materias = {
+                'Matemáticas 10°': {
+                    profesor: 'María González',
+                    horario: 'Lun/Mie 10:00',
+                    aula: '101',
+                    progreso: 75,
+                    nota: 4.5,
+                    recursos: [
+                        { nombre: 'Guía de ejercicios.pdf', tipo: 'PDF', tamano: '2.5 MB', fecha: '15/03/2024' },
+                        { nombre: 'Video explicativo.mp4', tipo: 'Video', tamano: '15 MB', fecha: '14/03/2024' }
+                    ],
+                    evaluaciones: [
+                        { nombre: 'Parcial 1', fecha: '15/03/2024', nota: 4.5 },
+                        { nombre: 'Taller', fecha: '10/03/2024', nota: 4.0 }
+                    ],
+                    tareas: [
+                        { nombre: 'Ejercicios', fecha: '20/03/2024', estado: 'Pendiente' }
+                    ]
+                },
+                'Física 11°': {
+                    profesor: 'Carlos Rodríguez',
+                    horario: 'Mar/Jue 14:00',
+                    aula: '102',
+                    progreso: 60,
+                    nota: 4.0,
+                    recursos: [
+                        { nombre: 'Guía de laboratorio.pdf', tipo: 'PDF', tamano: '1.8 MB', fecha: '13/03/2024' }
+                    ],
+                    evaluaciones: [
+                        { nombre: 'Taller', fecha: '20/03/2024', nota: 4.0 }
+                    ],
+                    tareas: [
+                        { nombre: 'Taller', fecha: '22/03/2024', estado: 'Pendiente' }
+                    ]
+                },
+                'Español 10°': {
+                    profesor: 'Ana Martínez',
+                    horario: 'Lun/Mie 8:00',
+                    aula: '103',
+                    progreso: 85,
+                    nota: 4.8,
+                    recursos: [
+                        { nombre: 'Guía de redacción.pdf', tipo: 'PDF', tamano: '2.1 MB', fecha: '12/03/2024' }
+                    ],
+                    evaluaciones: [
+                        { nombre: 'Ensayo', fecha: '05/03/2024', nota: 4.8 }
+                    ],
+                    tareas: [
+                        { nombre: 'Ensayo', fecha: '25/03/2024', estado: 'Pendiente' }
+                    ]
+                }
+            };
+
+            const materia = materias[materiaNombre] || {
+                profesor: 'Profesor',
+                horario: 'Por definir',
+                aula: 'N/A',
+                progreso: 50,
+                nota: 4.0,
+                recursos: [],
+                evaluaciones: [],
+                tareas: []
+            };
+
+            document.getElementById('modalMateriaTitulo').textContent = materiaNombre;
+            
+            let recursosHtml = '';
+            materia.recursos.forEach(rec => {
+                recursosHtml += `
+                    <tr>
+                        <td>${rec.nombre}</td>
+                        <td>${rec.tipo}</td>
+                        <td>${rec.fecha}</td>
+                        <td>
+                            <button class="btn-icon" onclick="verRecurso('${rec.nombre}')" title="Ver"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon" onclick="descargarRecurso('${rec.nombre}')" title="Descargar"><i class="fas fa-download"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            let evaluacionesHtml = '';
+            materia.evaluaciones.forEach(eval => {
+                evaluacionesHtml += `
+                    <tr>
+                        <td>${eval.nombre}</td>
+                        <td>${eval.fecha}</td>
+                        <td><strong style="color: ${eval.nota >= 4 ? 'var(--secondary)' : 'var(--error)'}">${eval.nota}</strong></td>
+                    </tr>
+                `;
+            });
+
+            let tareasHtml = '';
+            materia.tareas.forEach(tarea => {
+                tareasHtml += `
+                    <tr>
+                        <td>${tarea.nombre}</td>
+                        <td>${tarea.fecha}</td>
+                        <td><span class="badge-estado ${tarea.estado === 'Pendiente' ? 'pendiente' : 'entregado'}">${tarea.estado}</span></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('modalMateriaContenido').innerHTML = `
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>Profesor:</strong> ${materia.profesor}</p>
+                        <p><strong>Horario:</strong> ${materia.horario}</p>
+                        <p><strong>Aula:</strong> ${materia.aula}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Progreso:</strong> ${materia.progreso}%</p>
+                        <div class="progress-container">
+                            <div class="progress">
+                                <div class="progress-bar" style="width: ${materia.progreso}%"></div>
+                            </div>
+                        </div>
+                        <p class="mt-2"><strong>Nota actual:</strong> <span style="color: ${materia.nota >= 4 ? 'var(--secondary)' : 'var(--error)'}; font-weight: 600;">${materia.nota}</span></p>
+                    </div>
+                </div>
+
+                <div class="course-tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                    <div class="course-tab active" onclick="showMateriaTab('recursos')">Recursos</div>
+                    <div class="course-tab" onclick="showMateriaTab('evaluaciones')">Evaluaciones</div>
+                    <div class="course-tab" onclick="showMateriaTab('tareas')">Tareas</div>
+                </div>
+
+                <div id="materia-recursos">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Recurso</th>
+                                <th>Tipo</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${recursosHtml || '<tr><td colspan="4" style="text-align: center;">No hay recursos disponibles</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="materia-evaluaciones" style="display: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Evaluación</th>
+                                <th>Fecha</th>
+                                <th>Nota</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${evaluacionesHtml || '<tr><td colspan="3" style="text-align: center;">No hay evaluaciones registradas</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="materia-tareas" style="display: none;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tarea</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tareasHtml || '<tr><td colspan="3" style="text-align: center;">No hay tareas pendientes</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            document.getElementById('modalMateria').classList.add('show');
+        }
+
+        function showMateriaTab(tab) {
+            document.querySelectorAll('.course-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('[id^="materia-"]').forEach(c => c.style.display = 'none');
+            
+            event.target.classList.add('active');
+            document.getElementById(`materia-${tab}`).style.display = 'block';
+        }
+
+        function cerrarModalMateria() {
+            document.getElementById('modalMateria').classList.remove('show');
+        }
+
+        // Cargar recursos
+        function cargarRecursos() {
+            const recursos = [
+                { nombre: 'Guía de ejercicios - Matemáticas', tipo: 'PDF', materia: 'Matemáticas', tamano: '2.5 MB', fecha: '15/03/2024' },
+                { nombre: 'Video explicativo - Física', tipo: 'Video', materia: 'Física', tamano: '15 MB', fecha: '14/03/2024' },
+                { nombre: 'Presentación - Historia', tipo: 'PPT', materia: 'Historia', tamano: '5 MB', fecha: '13/03/2024' },
+                { nombre: 'Ejercicios resueltos - Español', tipo: 'PDF', materia: 'Español', tamano: '1.8 MB', fecha: '12/03/2024' },
+                { nombre: 'Audio - Inglés', tipo: 'Audio', materia: 'Inglés', tamano: '3 MB', fecha: '11/03/2024' }
+            ];
+            
+            let html = '';
+            recursos.forEach(recurso => {
+                let icono = 'pdf';
+                if (recurso.tipo === 'Video') icono = 'video';
+                else if (recurso.tipo === 'PPT') icono = 'powerpoint';
+                else if (recurso.tipo === 'Audio') icono = 'audio';
+                
+                html += `
+                    <div class="recurso-item">
+                        <div style="display: flex; align-items: center;">
+                            <div class="recurso-icon">
+                                <i class="fas fa-file-${icono}"></i>
+                            </div>
+                            <div class="recurso-info">
+                                <h4>${recurso.nombre}</h4>
+                                <p>${recurso.materia} • ${recurso.tamano} • ${recurso.fecha}</p>
+                            </div>
+                        </div>
+                        <div class="recurso-actions">
+                            <button class="btn-icon" onclick="verRecurso('${recurso.nombre}')" title="Ver"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon" onclick="descargarRecurso('${recurso.nombre}')" title="Descargar"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('listaRecursos').innerHTML = html;
+        }
+
+        // Filtrar recursos
+        function filterRecursos(searchTerm) {
+            const items = document.querySelectorAll('.recurso-item');
+            searchTerm = searchTerm.toLowerCase();
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+
+        function filterRecursosByMateria(materia) {
+            const items = document.querySelectorAll('.recurso-item');
+            
+            items.forEach(item => {
+                if (!materia) {
+                    item.style.display = 'flex';
+                } else {
+                    const text = item.textContent;
+                    item.style.display = text.includes(materia) ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // Cargar calificaciones
+        function cargarCalificaciones() {
+            const calificaciones = [
+                { materia: 'Matemáticas 10°', evaluacion: 'Parcial 1', nota: 4.5, fecha: '15/03/2024', comentario: 'Buen trabajo' },
+                { materia: 'Matemáticas 10°', evaluacion: 'Taller', nota: 4.0, fecha: '10/03/2024', comentario: 'Puede mejorar' },
+                { materia: 'Física 11°', evaluacion: 'Taller', nota: 4.2, fecha: '08/03/2024', comentario: 'Muy bien' },
+                { materia: 'Español 10°', evaluacion: 'Ensayo', nota: 4.8, fecha: '05/03/2024', comentario: 'Excelente' },
+                { materia: 'Inglés 11°', evaluacion: 'Speaking', nota: 5.0, fecha: '01/03/2024', comentario: 'Perfecto' }
+            ];
+            
+            let html = '';
+            calificaciones.forEach(cal => {
+                html += `
+                    <tr>
+                        <td>${cal.materia}</td>
+                        <td>${cal.evaluacion}</td>
+                        <td><strong style="color: ${cal.nota >= 4 ? 'var(--secondary)' : cal.nota >= 3 ? 'var(--accent)' : 'var(--error)'}">${cal.nota}</strong></td>
+                        <td>${cal.fecha}</td>
+                        <td>${cal.comentario}</td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('tablaCalificaciones').innerHTML = html;
+        }
+
+        // Cargar mensajes
+        function cargarMensajes() {
+            mensajesData = [
+                { 
+                    remitente: 'María González',
+                    materia: 'Matemáticas 10°',
+                    contenido: 'Recordatorio: El examen del viernes cubre los temas 5 y 6',
+                    fecha: 'Hace 2 horas',
+                    leido: false
+                },
+                { 
+                    remitente: 'Carlos Rodríguez',
+                    materia: 'Física 11°',
+                    contenido: 'La tarea se entrega el viernes sin falta',
+                    fecha: 'Hace 5 horas',
+                    leido: false
+                },
+                { 
+                    remitente: 'Ana Martínez',
+                    materia: 'Español 10°',
+                    contenido: 'Buen trabajo en el ensayo. Calificación: 4.8',
+                    fecha: 'Ayer',
+                    leido: true
+                }
+            ];
+            
+            actualizarListaMensajes();
+        }
+
+        function actualizarListaMensajes() {
+            let html = '';
+            mensajesData.forEach((msg, index) => {
+                html += `
+                    <div class="message-item ${!msg.leido ? 'unread' : ''}" onclick="verMensaje(${index})">
+                        <div class="message-header">
+                            <div>
+                                <span class="message-sender">${msg.remitente}</span>
+                                <span class="message-course">${msg.materia}</span>
+                            </div>
+                            <span class="message-time">${msg.fecha}</span>
+                        </div>
+                        <div class="message-content">
+                            ${msg.contenido}
+                        </div>
+                        <div class="message-actions">
+                            <span class="message-action" onclick="event.stopPropagation(); mostrarModalResponder('${msg.remitente}', '${msg.contenido}')">
+                                <i class="fas fa-reply"></i> Responder
+                            </span>
+                            ${!msg.leido ? 
+                                `<span class="message-action" onclick="event.stopPropagation(); marcarMensajeLeido(${index})">
+                                    <i class="fas fa-check"></i> Marcar como leído
+                                </span>` : ''
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('listaMensajes').innerHTML = html;
+            
+            const noLeidos = mensajesData.filter(m => !m.leido).length;
+            document.getElementById('mensajesNoLeidos').textContent = noLeidos;
+        }
+
+        function marcarMensajeLeido(index) {
+            mensajesData[index].leido = true;
+            actualizarListaMensajes();
+            mostrarToast('✅ Mensaje marcado como leído');
+        }
+
+        function verMensaje(index) {
+            marcarMensajeLeido(index);
+        }
+
+        function filterMensajes(searchTerm) {
+            const items = document.querySelectorAll('.message-item');
+            searchTerm = searchTerm.toLowerCase();
+            
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        }
+
+        // Modal nuevo mensaje
+        function mostrarModalNuevoMensaje() {
+            document.getElementById('modalNuevoMensaje').classList.add('show');
+        }
+
+        function cerrarModalNuevoMensaje() {
+            document.getElementById('modalNuevoMensaje').classList.remove('show');
+            document.getElementById('formMensaje').reset();
+        }
+
+        function enviarMensaje() {
+            const profesor = document.getElementById('mensajeProfesor').value;
+            const materia = document.getElementById('mensajeMateria').value;
+            const texto = document.getElementById('mensajeTexto').value;
+            
+            if (!profesor || !materia || !texto) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            mostrarToast('✅ Mensaje enviado correctamente');
+            cerrarModalNuevoMensaje();
+        }
+
+        // Modal responder
+        function mostrarModalResponder(remitente, mensajeOriginal) {
+            document.getElementById('respuestaPara').value = remitente;
+            document.getElementById('mensajeOriginal').value = mensajeOriginal;
+            document.getElementById('modalResponder').classList.add('show');
+        }
+
+        function cerrarModalResponder() {
+            document.getElementById('modalResponder').classList.remove('show');
+            document.getElementById('formRespuesta').reset();
+        }
+
+        function enviarRespuesta() {
+            const respuesta = document.getElementById('respuestaTexto').value;
+            if (!respuesta) {
+                alert('Por favor escribe una respuesta');
+                return;
+            }
+            
+            mostrarToast('✅ Respuesta enviada correctamente');
+            cerrarModalResponder();
+        }
+
+        // Cargar tareas entregadas
+        function cargarTareasEntregadas() {
+            tareasEntregadasData = [
+                { nombre: 'Ejercicios Matemáticas', materia: 'Matemáticas 10°', fecha: '10/03/2024', estado: 'Calificado', nota: 4.5 },
+                { nombre: 'Taller Física', materia: 'Física 11°', fecha: '08/03/2024', estado: 'Entregado', nota: null },
+                { nombre: 'Ensayo Español', materia: 'Español 10°', fecha: '05/03/2024', estado: 'Calificado', nota: 4.8 }
+            ];
+            
+            actualizarTareasEntregadas();
+        }
+
+        function actualizarTareasEntregadas() {
+            let html = '';
+            tareasEntregadasData.forEach(tarea => {
+                html += `
+                    <div class="tarea-item">
+                        <div class="tarea-info">
+                            <h4>${tarea.nombre}</h4>
+                            <p>${tarea.materia} • Entregado: ${tarea.fecha}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            ${tarea.nota ? 
+                                `<span class="badge-estado calificado">Calificado: ${tarea.nota}</span>` : 
+                                `<span class="badge-estado entregado">Entregado</span>`
+                            }
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('tareasEntregadas').innerHTML = html;
+        }
+
+        // Formulario de tarea
+        document.getElementById('formTarea')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const tarea = document.getElementById('tareaSelect').value;
+            const materia = document.getElementById('tareaMateria').value;
+            const archivo = document.getElementById('tareaArchivo').files[0];
+            
+            if (!tarea || !materia || !archivo) {
+                alert('Por favor completa todos los campos');
+                return;
+            }
+            
+            // Agregar a tareas entregadas
+            tareasEntregadasData.push({
+                nombre: tarea,
+                materia: materia,
+                fecha: new Date().toLocaleDateString('es-ES'),
+                estado: 'Entregado',
+                nota: null
+            });
+            
+            actualizarTareasEntregadas();
+            mostrarToast('📤 Tarea subida correctamente');
+            this.reset();
+        });
+
+        // Funciones de acción
+        function verRecurso(nombre) {
+            mostrarToast(`👁️ Ver recurso: ${nombre}`);
+        }
+
+        function descargarRecurso(nombre) {
+            mostrarToast(`📥 Descargando: ${nombre}`);
+        }
+
+        // Toast
+        function mostrarToast(mensaje) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = mensaje;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Función para cambiar de sección
+        window.showSection = function(sectionId, event) {
+            if (event) event.preventDefault();
+            
+            document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+            document.getElementById(sectionId).style.display = 'block';
+            
+            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+            if (event?.target) {
+                const link = event.target.closest('.nav-link');
+                if (link) link.classList.add('active');
+            }
+
+            // Cerrar sidebar en móvil después de seleccionar
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('show');
+                document.getElementById('sidebarOverlay').classList.remove('show');
+            }
+
+            // Actualizar calendario si es necesario
+            if (sectionId === 'calendario' && calendar) {
+                setTimeout(() => {
+                    calendar.updateSize();
+                }, 100);
+            }
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        };
+
+        // Logout
+        window.logout = function(event) {
+            if (event) event.preventDefault();
+            auth.signOut().then(() => {
+                sessionStorage.clear();
+                isRedirecting = true;
+                window.location.replace('login.html');
+            });
+        };
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dashboard').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

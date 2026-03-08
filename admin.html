@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EduSmart School</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Variables globales */
+        :root {
+            --primary: #4285F4;
+            --primary-light: #E8F0FE;
+            --secondary: #34A853;
+            --accent: #FBBC05;
+            --error: #EA4335;
+            --text-primary: #202124;
+            --text-secondary: #5F6368;
+            --background: #FFFFFF;
+            --surface: #F8F9FA;
+            --border: #DADCE0;
+            --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+            --shadow-md: 0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            background: var(--surface);
+            line-height: 1.5;
+        }
+
+        /* Navbar superior */
+        .top-navbar {
+            background: var(--background);
+            box-shadow: var(--shadow-sm);
+            padding: 0.75rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            color: var(--primary);
+            margin-right: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Notificaciones */
+        .notifications {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notifications i {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .notifications:hover i {
+            color: var(--primary);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 320px;
+            background: var(--background);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            display: none;
+            margin-top: 1rem;
+            z-index: 1001;
+        }
+
+        .notifications-dropdown.show {
+            display: block;
+        }
+
+        .notifications-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mark-read-btn {
+            color: var(--primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .mark-read-btn:hover {
+            text-decoration: underline;
+        }
+
+        .notifications-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-item:hover {
+            background: var(--surface);
+        }
+
+        .notification-item.unread {
+            background: var(--primary-light);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .mark-one-read {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .notification-item:hover .mark-one-read {
+            opacity: 1;
+        }
+
+        /* Menú de usuario */
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .user-menu:hover {
+            background: var(--surface);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .user-info {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .user-info {
+                display: block;
+                line-height: 1.2;
+            }
+            
+            .user-name {
+                font-weight: 500;
+                font-size: 0.9rem;
+            }
+            
+            .user-role {
+                font-size: 0.75rem;
+                color: var(--text-secondary);
+            }
+        }
+
+        .dropdown-menu-custom {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background: var(--background);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            display: none;
+            margin-top: 0.5rem;
+            z-index: 1001;
+        }
+
+        .dropdown-menu-custom.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--surface);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-item.text-danger {
+            color: var(--error);
+        }
+
+        .dropdown-item.text-danger i {
+            color: var(--error);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--background);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 1.5rem 0;
+            overflow-y: auto;
+        }
+
+        .sidebar .nav {
+            padding: 0 0.5rem;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-secondary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link i {
+            width: 24px;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+
+        .sidebar .nav-link:hover {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        .sidebar .nav-link:hover i {
+            color: var(--primary);
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .sidebar .nav-link.active i {
+            color: var(--primary);
+        }
+
+        .sidebar .nav-link.text-danger {
+            color: var(--error);
+        }
+
+        .sidebar .nav-link.text-danger i {
+            color: var(--error);
+        }
+
+        .sidebar .nav-link.text-danger:hover {
+            background: #FCE8E6;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 260px;
+            margin-top: 64px;
+            padding: 2rem;
+            min-height: calc(100vh - 64px);
+            background: var(--surface);
+        }
+
+        /* Cards de estadísticas */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            margin-top: 0.5rem;
+        }
+
+        .stat-trend i {
+            font-size: 0.875rem;
+        }
+
+        /* Barra de búsqueda y filtros */
+        .table-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            background: var(--background);
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            background: var(--surface);
+            border-color: var(--text-secondary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Tablas */
+        .table-container {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 2px solid var(--primary-light);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: var(--transition);
+        }
+
+        .table tbody tr:hover {
+            background: var(--surface);
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Badges */
+        .badge-role {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-role.admin {
+            background: #FCE8E6;
+            color: var(--error);
+        }
+
+        .badge-role.profesor {
+            background: #E6F4EA;
+            color: var(--secondary);
+        }
+
+        .badge-role.alumno {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #E6F4EA;
+            color: var(--secondary);
+        }
+
+        .badge-status.inactive {
+            background: #FCE8E6;
+            color: var(--error);
+        }
+
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: transparent;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .btn-icon:hover {
+            background: var(--surface);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-icon.delete:hover {
+            background: #FCE8E6;
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .btn-icon.view:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-icon.edit:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-icon.disable:hover {
+            background: #FCE8E6;
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--background);
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header i {
+            font-size: 3rem;
+            color: var(--error);
+            margin-bottom: 1rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-modal {
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-modal.cancel {
+            background: var(--surface);
+            color: var(--text-primary);
+        }
+
+        .btn-modal.cancel:hover {
+            background: var(--border);
+        }
+
+        .btn-modal.delete {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-modal.delete:hover {
+            background: #d93025;
+        }
+
+        /* Tabs de secciones */
+        .section-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .section-tab {
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .section-tab:hover {
+            color: var(--primary);
+        }
+
+        .section-tab.active {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .section-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        /* Chart container */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .top-navbar {
+                padding: 0.75rem 1rem;
+            }
+
+            .table-toolbar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="top-navbar">
+        <a href="index.html" class="navbar-brand">
+            <i class="fas fa-graduation-cap"></i>
+            <span>EduSmart School</span>
+            <span style="margin-left: 1rem; font-size: 0.75rem; color: var(--text-secondary);">Admin</span>
+        </a>
+
+        <div class="navbar-actions">
+            <!-- Notificaciones -->
+            <div class="notifications" id="notificationsToggle">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationCount">3</span>
+                <div class="notifications-dropdown" id="notificationsDropdown">
+                    <div class="notifications-header">
+                        <span>Notificaciones</span>
+                        <button class="mark-read-btn" onclick="marcarTodasLeidas()">Marcar todas como leídas</button>
+                    </div>
+                    <div class="notifications-list" id="notificationsList"></div>
+                </div>
+            </div>
+
+            <!-- Menú de usuario -->
+            <div class="user-menu" id="userMenuToggle">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userEmail">admin@edusmart.com</div>
+                </div>
+                <i class="fas fa-chevron-down" style="font-size: 0.75rem; color: var(--text-secondary);"></i>
+                
+                <div class="dropdown-menu-custom" id="userDropdown">
+                    <div class="dropdown-item" onclick="showSection('perfil')">
+                        <i class="fas fa-user"></i>
+                        Mi Perfil
+                    </div>
+                    <div class="dropdown-item" onclick="showSection('configuracion')">
+                        <i class="fas fa-cog"></i>
+                        Configuración
+                    </div>
+                    <div class="dropdown-divider" style="height: 1px; background: var(--border); margin: 0.5rem 0;"></div>
+                    <div class="dropdown-item text-danger" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Cerrar Sesión
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="#" onclick="showSection('dashboard', event)">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('usuarios', event)">
+                <i class="fas fa-users"></i>
+                <span>Usuarios</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('cursos', event)">
+                <i class="fas fa-book"></i>
+                <span>Cursos</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('recursos', event)">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Recursos</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('estadisticas', event)">
+                <i class="fas fa-chart-bar"></i>
+                <span>Estadísticas</span>
+            </a>
+            <a class="nav-link" href="#" onclick="showSection('configuracion', event)">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+            <hr class="my-3" style="border-color: var(--border);">
+            <a class="nav-link text-danger" href="#" onclick="logout(event)">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-home me-2" style="color: var(--primary);"></i>
+                Dashboard
+            </h2>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span class="stat-trend">
+                            <i class="fas fa-arrow-up"></i> +12%
+                        </span>
+                    </div>
+                    <div class="stat-value" id="totalUsuarios">156</div>
+                    <div class="stat-label">Usuarios activos</div>
+                    <div style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        3 nuevos esta semana
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <span class="stat-trend">
+                            <i class="fas fa-arrow-up"></i> +8%
+                        </span>
+                    </div>
+                    <div class="stat-value" id="totalCursos">24</div>
+                    <div class="stat-label">Cursos activos</div>
+                    <div style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        2 nuevos este mes
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <span class="stat-trend">
+                            <i class="fas fa-arrow-up"></i> +15%
+                        </span>
+                    </div>
+                    <div class="stat-value">342</div>
+                    <div class="stat-label">Recursos totales</div>
+                    <div style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        28 esta semana
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span class="stat-trend">
+                            <i class="fas fa-arrow-up"></i> +23%
+                        </span>
+                    </div>
+                    <div class="stat-value">89%</div>
+                    <div class="stat-label">Actividad general</div>
+                    <div style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.875rem;">
+                        +5% vs mes anterior
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actividad reciente -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="table-container">
+                        <h5 class="mb-3">
+                            <i class="fas fa-history me-2" style="color: var(--primary);"></i>
+                            Actividad Reciente
+                        </h5>
+                        <div id="actividadReciente">
+                            <!-- Se llenará con JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="table-container">
+                        <h5 class="mb-3">
+                            <i class="fas fa-trending-up me-2" style="color: var(--primary);"></i>
+                            Estadísticas Rápidas
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="quickChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Usuarios Section -->
+        <div id="usuarios" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-users me-2" style="color: var(--primary);"></i>
+                Gestión de Usuarios
+            </h2>
+            
+            <!-- Barra de búsqueda y filtros -->
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchUsuarios" placeholder="Buscar usuario por nombre o email...">
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="admin">Admin</button>
+                    <button class="filter-btn" data-filter="profesor">Profesor</button>
+                    <button class="filter-btn" data-filter="alumno">Alumno</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div></div>
+                    <button class="btn-icon" style="width: auto; padding: 0.5rem 1.5rem;" onclick="crearUsuario()">
+                        <i class="fas fa-plus me-2"></i>Nuevo Usuario
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaUsuarios">
+                            <!-- Se llenará con JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cursos Section -->
+        <div id="cursos" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-book me-2" style="color: var(--primary);"></i>
+                Gestión de Cursos
+            </h2>
+            
+            <!-- Barra de búsqueda -->
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchCursos" placeholder="Buscar curso...">
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div></div>
+                    <button class="btn-icon" style="width: auto; padding: 0.5rem 1.5rem;" onclick="crearCurso()">
+                        <i class="fas fa-plus me-2"></i>Nuevo Curso
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Curso</th>
+                                <th>Profesor</th>
+                                <th>Estudiantes</th>
+                                <th>Horario</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCursos">
+                            <!-- Se llenará con JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recursos Section -->
+        <div id="recursos" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-cloud-upload-alt me-2" style="color: var(--primary);"></i>
+                Gestión de Recursos
+            </h2>
+            
+            <!-- Barra de búsqueda -->
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchRecursos" placeholder="Buscar recurso...">
+                </div>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="PDF">PDF</button>
+                    <button class="filter-btn" data-filter="Video">Video</button>
+                    <button class="filter-btn" data-filter="PPT">PPT</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div></div>
+                    <button class="btn-icon" style="width: auto; padding: 0.5rem 1.5rem;" onclick="subirRecurso()">
+                        <i class="fas fa-upload me-2"></i>Subir Recurso
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Recurso</th>
+                                <th>Tipo</th>
+                                <th>Curso</th>
+                                <th>Subido por</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaRecursos">
+                            <!-- Se llenará con JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estadísticas Section -->
+        <div id="estadisticas" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-chart-bar me-2" style="color: var(--primary);"></i>
+                Estadísticas Avanzadas
+            </h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">85%</div>
+                    <div class="stat-label">Tasa de graduación</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">92%</div>
+                    <div class="stat-label">Asistencia promedio</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">4.5</div>
+                    <div class="stat-label">Calificación promedio</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-label">Estudiantes destacados</div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="table-container">
+                        <h5 class="mb-3">Rendimiento por Curso</h5>
+                        <div class="chart-container">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Configuración Section (simplificada) -->
+        <div id="configuracion" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-cog me-2" style="color: var(--primary);"></i>
+                Configuración
+            </h2>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-container">
+                        <h5 class="mb-4">Configuración General</h5>
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Colegio</label>
+                                <input type="text" class="form-control" value="EduSmart School" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email de Contacto</label>
+                                <input type="email" class="form-control" value="info@edusmart.com" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                            </div>
+                            <button class="btn-icon" style="width: auto; padding: 0.75rem 1.5rem;">Guardar Cambios</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Perfil Section -->
+        <div id="perfil" class="content-section" style="display: none;">
+            <h2 style="font-size: 1.75rem; font-weight: 600; margin-bottom: 2rem;">
+                <i class="fas fa-user me-2" style="color: var(--primary);"></i>
+                Mi Perfil
+            </h2>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="table-container text-center">
+                        <div class="user-avatar" style="width: 100px; height: 100px; margin: 0 auto 1rem; font-size: 2.5rem;">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h4 id="profileName">Administrador</h4>
+                        <p id="profileEmail" style="color: var(--text-secondary);">admin@edusmart.com</p>
+                        <button class="btn-icon" style="width: auto; padding: 0.5rem 1.5rem; margin-top: 1rem;">
+                            <i class="fas fa-camera me-2"></i>Cambiar foto
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="table-container">
+                        <h5 class="mb-4">Información Personal</h5>
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" class="form-control" value="Administrador" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Apellidos</label>
+                                    <input type="text" class="form-control" value="Sistema" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" value="admin@edusmart.com" style="border-radius: 8px; border: 1px solid var(--border); padding: 0.75rem;">
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn-icon" style="width: auto; padding: 0.75rem 1.5rem;">Actualizar Perfil</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirmar eliminación</h3>
+            </div>
+            <div class="modal-body" id="modalMessage">
+                ¿Seguro que quieres eliminar este elemento?
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-modal delete" id="confirmDeleteBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDmDOu0EWq4gZ-OR71nK4HtOj5yEX-dENw",
+            authDomain: "edusmart-school.firebaseapp.com",
+            projectId: "edusmart-school",
+            storageBucket: "edusmart-school.firebasestorage.app",
+            messagingSenderId: "507977635936",
+            appId: "1:507977635936:web:b3033cc72b2cea865b0b05"
+        };
+
+        // Inicializar Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const auth = firebase.auth();
+
+        // Variables globales
+        let isRedirecting = false;
+        let currentDeleteCallback = null;
+        let charts = {};
+
+        // Verificar autenticación
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('✅ Usuario autenticado en admin:', user.email);
+                
+                if (!user.email.includes('admin')) {
+                    console.log('❌ No es admin, redirigiendo...');
+                    if (!isRedirecting) {
+                        isRedirecting = true;
+                        window.location.replace('login.html');
+                    }
+                    return;
+                }
+                
+                // Guardar en sessionStorage
+                const userData = {
+                    uid: user.uid,
+                    email: user.email,
+                    rol: 'admin',
+                    nombre: 'Administrador'
+                };
+                sessionStorage.setItem('user', JSON.stringify(userData));
+                
+                // Mostrar información del usuario
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userName').textContent = 'Administrador';
+                document.getElementById('profileEmail').textContent = user.email;
+                
+                // Cargar datos
+                cargarDatosIniciales();
+                cargarNotificaciones();
+                
+                // Inicializar gráficos después de que el DOM esté listo
+                setTimeout(() => {
+                    initCharts();
+                }, 100);
+                
+            } else {
+                console.log('❌ No hay usuario autenticado en admin');
+                if (!isRedirecting) {
+                    isRedirecting = true;
+                    window.location.replace('login.html');
+                }
+            }
+        });
+
+        // Toggle dropdowns
+        document.getElementById('userMenuToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('userDropdown').classList.toggle('show');
+            document.getElementById('notificationsDropdown').classList.remove('show');
+        });
+
+        document.getElementById('notificationsToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('notificationsDropdown').classList.toggle('show');
+            document.getElementById('userDropdown').classList.remove('show');
+        });
+
+        document.addEventListener('click', function() {
+            document.getElementById('userDropdown').classList.remove('show');
+            document.getElementById('notificationsDropdown').classList.remove('show');
+        });
+
+        // Filtros de búsqueda
+        document.getElementById('searchUsuarios')?.addEventListener('input', function(e) {
+            filterTable('usuarios', e.target.value);
+        });
+
+        document.getElementById('searchCursos')?.addEventListener('input', function(e) {
+            filterTable('cursos', e.target.value);
+        });
+
+        document.getElementById('searchRecursos')?.addEventListener('input', function(e) {
+            filterTable('recursos', e.target.value);
+        });
+
+        // Filtros por rol
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const parent = this.closest('.filter-group');
+                if (parent) {
+                    parent.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Determinar qué tabla estamos filtrando
+                    if (parent.closest('#usuarios')) {
+                        filterByRol(this.dataset.filter);
+                    } else if (parent.closest('#recursos')) {
+                        filterByTipo(this.dataset.filter);
+                    }
+                }
+            });
+        });
+
+        // Función para filtrar tablas
+        function filterTable(table, searchTerm) {
+            const tbody = document.getElementById(`tabla${table.charAt(0).toUpperCase() + table.slice(1)}`);
+            if (!tbody) return;
+            
+            const rows = tbody.getElementsByTagName('tr');
+            searchTerm = searchTerm.toLowerCase();
+            
+            Array.from(rows).forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // Función para filtrar por rol
+        function filterByRol(rol) {
+            const rows = document.querySelectorAll('#tablaUsuarios tr');
+            
+            Array.from(rows).forEach(row => {
+                if (rol === 'all') {
+                    row.style.display = '';
+                } else {
+                    const badge = row.querySelector('.badge-role');
+                    if (badge) {
+                        const rowRol = badge.classList[1];
+                        row.style.display = rowRol === rol ? '' : 'none';
+                    }
+                }
+            });
+        }
+
+        // Función para filtrar por tipo de recurso
+        function filterByTipo(tipo) {
+            const rows = document.querySelectorAll('#tablaRecursos tr');
+            
+            Array.from(rows).forEach(row => {
+                if (tipo === 'all') {
+                    row.style.display = '';
+                } else {
+                    const tipoCell = row.cells[1];
+                    if (tipoCell) {
+                        row.style.display = tipoCell.textContent === tipo ? '' : 'none';
+                    }
+                }
+            });
+        }
+
+        // Funciones de notificaciones
+        function marcarTodasLeidas() {
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.classList.remove('unread');
+            });
+            document.getElementById('notificationCount').textContent = '0';
+        }
+
+        function marcarComoLeida(element) {
+            const item = element.closest('.notification-item');
+            item.classList.remove('unread');
+            
+            // Actualizar contador
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            document.getElementById('notificationCount').textContent = unreadCount;
+        }
+
+        // Modal functions
+        function showModal(message, callback) {
+            document.getElementById('modalMessage').textContent = message;
+            currentDeleteCallback = callback;
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            currentDeleteCallback = null;
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (currentDeleteCallback) {
+                currentDeleteCallback();
+            }
+            closeModal();
+        });
+
+        // Cargar notificaciones
+        function cargarNotificaciones() {
+            const notificaciones = [
+                { title: 'Nuevo usuario registrado', time: 'Hace 5 minutos', unread: true },
+                { title: 'Curso "Matemáticas" actualizado', time: 'Hace 1 hora', unread: true },
+                { title: '15 recursos subidos esta semana', time: 'Hace 2 horas', unread: true },
+                { title: 'Nueva evaluación disponible', time: 'Hace 1 día', unread: false }
+            ];
+            
+            let html = '';
+            notificaciones.forEach(notif => {
+                html += `
+                    <div class="notification-item ${notif.unread ? 'unread' : ''}">
+                        <div class="notification-content" onclick="marcarComoLeida(this)">
+                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-time">${notif.time}</div>
+                        </div>
+                        ${notif.unread ? '<i class="fas fa-circle mark-one-read" style="font-size: 0.5rem; color: var(--primary);"></i>' : ''}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('notificationsList').innerHTML = html;
+        }
+
+        // Inicializar gráficos
+        function initCharts() {
+            // Destruir gráficos existentes
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+
+            // Gráfico rápido del dashboard
+            const quickCtx = document.getElementById('quickChart')?.getContext('2d');
+            if (quickCtx) {
+                charts.quick = new Chart(quickCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Admin', 'Profesores', 'Alumnos'],
+                        datasets: [{
+                            data: [3, 12, 141],
+                            backgroundColor: ['#EA4335', '#34A853', '#4285F4'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { family: 'Inter' }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de rendimiento
+            const perfCtx = document.getElementById('performanceChart')?.getContext('2d');
+            if (perfCtx) {
+                charts.performance = new Chart(perfCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Matemáticas', 'Física', 'Español', 'Inglés', 'Historia'],
+                        datasets: [{
+                            label: 'Calificación promedio',
+                            data: [4.5, 4.2, 4.8, 4.9, 4.3],
+                            backgroundColor: '#4285F4',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 5,
+                                grid: { color: '#DADCE0' },
+                                ticks: { font: { family: 'Inter' } }
+                            },
+                            x: {
+                                ticks: { font: { family: 'Inter' } }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Función para cargar datos iniciales
+        function cargarDatosIniciales() {
+            // Actividad reciente
+            document.getElementById('actividadReciente').innerHTML = `
+                <div class="list-group">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-user-plus text-primary me-2"></i>
+                            Nuevo usuario registrado
+                        </div>
+                        <small style="color: var(--text-secondary);">5 min</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-edit text-success me-2"></i>
+                            Curso actualizado
+                        </div>
+                        <small style="color: var(--text-secondary);">1 h</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-upload text-info me-2"></i>
+                            Recurso subido
+                        </div>
+                        <small style="color: var(--text-secondary);">2 h</small>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-check-circle text-warning me-2"></i>
+                            Evaluación calificada
+                        </div>
+                        <small style="color: var(--text-secondary);">3 h</small>
+                    </div>
+                </div>
+            `;
+
+            // Tabla usuarios
+            document.getElementById('tablaUsuarios').innerHTML = `
+                <tr>
+                    <td>Administrador</td>
+                    <td>admin@edusmart.com</td>
+                    <td><span class="badge-role admin">admin</span></td>
+                    <td><span class="badge-status">Activo</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarUsuario('admin')" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon disable" onclick="desactivarUsuario('admin')" title="Desactivar"><i class="fas fa-ban"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('usuario', 'admin')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Profesor González</td>
+                    <td>prof@edusmart.com</td>
+                    <td><span class="badge-role profesor">profesor</span></td>
+                    <td><span class="badge-status">Activo</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarUsuario('prof')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon disable" onclick="desactivarUsuario('prof')"><i class="fas fa-ban"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('usuario', 'prof')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Alumno Pérez</td>
+                    <td>alumno@edusmart.com</td>
+                    <td><span class="badge-role alumno">alumno</span></td>
+                    <td><span class="badge-status">Activo</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarUsuario('alumno')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon disable" onclick="desactivarUsuario('alumno')"><i class="fas fa-ban"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('usuario', 'alumno')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>María García</td>
+                    <td>maria.garcia@edusmart.com</td>
+                    <td><span class="badge-role profesor">profesor</span></td>
+                    <td><span class="badge-status">Activo</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarUsuario('maria')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon disable" onclick="desactivarUsuario('maria')"><i class="fas fa-ban"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('usuario', 'maria')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Carlos Rodríguez</td>
+                    <td>carlos.rodriguez@edusmart.com</td>
+                    <td><span class="badge-role alumno">alumno</span></td>
+                    <td><span class="badge-status inactive">Inactivo</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarUsuario('carlos')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon disable" onclick="activarUsuario('carlos')"><i class="fas fa-check-circle"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('usuario', 'carlos')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            // Tabla cursos
+            document.getElementById('tablaCursos').innerHTML = `
+                <tr>
+                    <td>Matemáticas 10°</td>
+                    <td>Prof. González</td>
+                    <td>25</td>
+                    <td>Lun/Mie 10:00</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarCurso('matematicas')" title="Editar curso"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon view" onclick="verEstudiantes('matematicas')" title="Ver estudiantes"><i class="fas fa-users"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('curso', 'matematicas')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Física 11°</td>
+                    <td>Prof. Rodríguez</td>
+                    <td>20</td>
+                    <td>Mar/Jue 14:00</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarCurso('fisica')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon view" onclick="verEstudiantes('fisica')"><i class="fas fa-users"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('curso', 'fisica')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Español 10°</td>
+                    <td>Prof. Martínez</td>
+                    <td>22</td>
+                    <td>Lun/Mie 8:00</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarCurso('espanol')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon view" onclick="verEstudiantes('espanol')"><i class="fas fa-users"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('curso', 'espanol')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Inglés 11°</td>
+                    <td>Prof. Smith</td>
+                    <td>18</td>
+                    <td>Vie 10:00</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon edit" onclick="editarCurso('ingles')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon view" onclick="verEstudiantes('ingles')"><i class="fas fa-users"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('curso', 'ingles')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            // Tabla recursos
+            document.getElementById('tablaRecursos').innerHTML = `
+                <tr>
+                    <td>Guía Matemáticas.pdf</td>
+                    <td>PDF</td>
+                    <td>Matemáticas</td>
+                    <td>Admin</td>
+                    <td>2024-01-15</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon view" onclick="verRecurso('guia')" title="Ver"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon edit" onclick="editarRecurso('guia')" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('recurso', 'guia')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Video Física.mp4</td>
+                    <td>Video</td>
+                    <td>Física</td>
+                    <td>Profesor</td>
+                    <td>2024-01-16</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon view" onclick="verRecurso('video')"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon edit" onclick="editarRecurso('video')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('recurso', 'video')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Presentación Historia.pptx</td>
+                    <td>PPT</td>
+                    <td>Historia</td>
+                    <td>Profesor</td>
+                    <td>2024-01-17</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon view" onclick="verRecurso('presentacion')"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon edit" onclick="editarRecurso('presentacion')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('recurso', 'presentacion')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ejercicios Español.pdf</td>
+                    <td>PDF</td>
+                    <td>Español</td>
+                    <td>Admin</td>
+                    <td>2024-01-18</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon view" onclick="verRecurso('ejercicios')"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon edit" onclick="editarRecurso('ejercicios')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon delete" onclick="confirmarEliminar('recurso', 'ejercicios')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Funciones de confirmación
+        function confirmarEliminar(tipo, id) {
+            showModal(`¿Seguro que quieres eliminar este ${tipo}?`, () => {
+                alert(`✅ Demo: ${tipo} ${id} eliminado`);
+            });
+        }
+
+        // Funciones demo
+        window.crearUsuario = () => alert('📝 Demo: Crear nuevo usuario');
+        window.crearCurso = () => alert('📝 Demo: Crear nuevo curso');
+        window.subirRecurso = () => alert('📝 Demo: Subir recurso');
+        
+        window.editarUsuario = (id) => alert(`✏️ Demo: Editar usuario ${id}`);
+        window.desactivarUsuario = (id) => alert(`🔒 Demo: Desactivar usuario ${id}`);
+        window.activarUsuario = (id) => alert(`✅ Demo: Activar usuario ${id}`);
+        
+        window.editarCurso = (id) => alert(`✏️ Demo: Editar curso ${id}`);
+        window.verEstudiantes = (id) => alert(`👥 Demo: Ver estudiantes del curso ${id}`);
+        
+        window.verRecurso = (id) => alert(`👁️ Demo: Ver recurso ${id}`);
+        window.editarRecurso = (id) => alert(`✏️ Demo: Editar recurso ${id}`);
+
+        // Función para cambiar de sección
+        window.showSection = function(sectionId, event) {
+            if (event) event.preventDefault();
+            
+            document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+            document.getElementById(sectionId).style.display = 'block';
+            
+            document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
+            if (event?.target) {
+                const link = event.target.closest('.nav-link');
+                if (link) link.classList.add('active');
+            }
+
+            // Reinitializar gráficos si es necesario
+            if (sectionId === 'estadisticas' || sectionId === 'dashboard') {
+                setTimeout(() => {
+                    initCharts();
+                }, 100);
+            }
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        };
+
+        // Logout
+        window.logout = function(event) {
+            if (event) event.preventDefault();
+            auth.signOut().then(() => {
+                sessionStorage.clear();
+                isRedirecting = true;
+                window.location.replace('login.html');
+            });
+        };
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dashboard').style.display = 'block';
+        });
+    </script>
+</body>
+</html>
