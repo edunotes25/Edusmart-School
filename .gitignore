@@ -1,30 +1,10 @@
-# Dependencias
-node_modules/
-package-lock.json
-
-# Firebase
-.firebase/
-*.log
-.firebaserc
-.firebase/
-
-# Entorno
+# Firebase Admin SDK - Prevención
+serviceAccount*.json
+firebase-adminsdk*.json
+*-firebase-key.json
+*.private.key
+*.p12
+*.pem
+node_modules
 .env
-.env.local
-.env.development
-.env.production
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Sistema
-.DS_Store
-Thumbs.db
-
-# Build
-dist/
-build/
-nombre-del-archivo.json
+.env
